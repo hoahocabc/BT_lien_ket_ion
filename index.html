@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang='vi'>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài tâp hóa học ABC</title>
+
+  <!-- Sử dụng Google Fonts cho giao diện hiện đại -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$']] },
+      chtml: { scale: 0.9 },
+      svg: { fontCache: 'global' }
+    };
+    function drop(ev) {
+      ev.preventDefault();
+      var data = ev.dataTransfer.getData("text");
+      var draggable = document.getElementById(data);
+      var dropZone = ev.target;
+      while (dropZone && !dropZone.classList.contains("dropzone") && dropZone.tagName !== "BODY") {
+        dropZone = dropZone.parentNode;
+      }
+      if (!dropZone) return;
+      var label = dropZone.querySelector(".drop-label");
+      if (label) {
+         if (label.nextSibling) {
+           dropZone.insertBefore(draggable, label.nextSibling);
+         } else {
+           dropZone.appendChild(draggable);
+         }
+      } else {
+         dropZone.appendChild(draggable);
+      }
+    }
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .top-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+    .score-box {
+      background: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1.1em;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8em;
+      color: #333;
+    }
+    .header h2 {
+      margin: 10px 0 0;
+      font-size: 1.2em;
+      color: #777;
+    }
+    .section {
+      margin-top: 30px;
+    }
+    .section h2 {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #4285f4;
+    }
+    .question {
+      margin-bottom: 30px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #f2f2f2;
+    }
+    .question p {
+      margin: 0 0 10px 0;
+    }
+    .option {
+      margin: 5px 0;
+    }
+    .explanation {
+      margin-top: 10px;
+    }
+    button {
+      background: #4285f4;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:hover { background: #307cf1; }
+    /* Drag and drop */
+    .drag-drop-container {
+      display: flex;
+      gap: 10px;
+    }
+    .drag-column, .drop-column {
+      flex: 1;
+      background: #fff;
+      border: 1px dashed #ccc;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .draggable-item {
+      background: #e8f0fe;
+      border: 1px solid #c6dafc;
+      padding: 8px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      cursor: move;
+      text-align: center;
+    }
+    .dropzone {
+      min-height: 50px;
+      border: 1px dashed #aaa;
+      margin: 5px 0;
+      border-radius: 4px;
+      padding: 10px;
+      text-align: center;
+    }
+    .drop-label {
+      font-weight: bold;
+      color: #555;
+    }
+    /* Updated CSS for blanks in Part IV */
+    .blank-container {
+      display: inline;
+    }
+    .blank-container input.auto-expand, .blank-container span {
+      white-space: normal;
+      min-width: 60px;
+      height: 25px;
+      font-size: 18px;
+      vertical-align: baseline;
+      box-sizing: border-box;
+      overflow-wrap: break-word;
+    }
+    mjx-container[jax="CHTML"][display="true"] {
+      margin-top: 0 !important;
+      margin-bottom: -1.5em !important;
+    }
+    /* Media query cho smartphone */
+    @media only screen and (max-width: 600px) {
+      body { padding: 10px; font-size: 16px; }
+      .container { padding: 15px; }
+      .header h1 { font-size: 1.8em; }
+      .header h2 { font-size: 1.2em; }
+      .score-box { font-size: 1em; padding: 8px 12px; }
+    }
+  </style>
+
+</head>
+<body>
+  <div class='container'>
+    <div class='top-row'><div class='score-box' id='scoreDisplay'>Tổng số điểm:</div></div>
+    <div class='header'><h1>BÀI TẬP LIÊN KẾT ION</h1><h2>(HÓA HỌC ABC)</h2></div>
+<div class='section' id='part1' data-parttype='1'>
+<h2>Phần 1: Trắc nghiệm nhiều lựa chọn (có một phương án đúng)</h2>
+<div class='question' id='part1_q1'>
+<p><strong>Câu 1:</strong><br><br>Ion là gì?</p>
+<div class='option'><label><input type='radio' name='part1_q1' value='A'> <strong>A.</strong>  Nguyên tử trung hòa về điện</label></div>
+<div class='option'><label><input type='radio' name='part1_q1' value='B'> <strong>B.</strong>  Nguyên tử hoặc nhóm nguyên tử mang điện</label></div>
+<div class='option'><label><input type='radio' name='part1_q1' value='C'> <strong>C.</strong>  Nguyên tử có nhiều proton hơn neutron</label></div>
+<div class='option'><label><input type='radio' name='part1_q1' value='D'> <strong>D.</strong>  Nguyên tử bị kích thích</label></div>
+<div class='explanation' id='part1_q1_result' data-answer='B' data-solution='%20%3Cbr%3EIon%20h%C3%ACnh%20th%C3%A0nh%20khi%20nguy%C3%AAn%20t%E1%BB%AD%20nh%E1%BA%ADn%20ho%E1%BA%B7c%20m%E1%BA%A5t%20electron%2C%20l%C3%A0m%20cho%20n%C3%B3%20mang%20%C4%91i%E1%BB%87n.'></div>
+</div>
+<div class='question' id='part1_q2'>
+<p><strong>Câu 2:</strong><br><br>Ion dương (cation) được hình thành khi nguyên tử:</p>
+<div class='option'><label><input type='radio' name='part1_q2' value='A'> <strong>A.</strong>  Nhận electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q2' value='B'> <strong>B.</strong>  Mất electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q2' value='C'> <strong>C.</strong>  Tăng số proton</label></div>
+<div class='option'><label><input type='radio' name='part1_q2' value='D'> <strong>D.</strong>  Bị phân rã</label></div>
+<div class='explanation' id='part1_q2_result' data-answer='B' data-solution='%20%3Cbr%3EM%E1%BA%A5t%20electron%20%E2%86%92%20thi%E1%BA%BFu%20electron%20%E2%86%92%20mang%20%C4%91i%E1%BB%87n%20d%C6%B0%C6%A1ng.'></div>
+</div>
+<div class='question' id='part1_q3'>
+<p><strong>Câu 3:</strong><br><br>Ion âm (anion) được hình thành khi nguyên tử:</p>
+<div class='option'><label><input type='radio' name='part1_q3' value='A'> <strong>A.</strong>  Mất proton</label></div>
+<div class='option'><label><input type='radio' name='part1_q3' value='B'> <strong>B.</strong>  Nhận electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q3' value='C'> <strong>C.</strong>  Nhận proton</label></div>
+<div class='option'><label><input type='radio' name='part1_q3' value='D'> <strong>D.</strong>  Mất neutron</label></div>
+<div class='explanation' id='part1_q3_result' data-answer='B' data-solution='%20%3Cbr%3ENh%E1%BA%ADn%20electron%20%E2%86%92%20th%E1%BB%ABa%20electron%20%E2%86%92%20mang%20%C4%91i%E1%BB%87n%20%C3%A2m.'></div>
+</div>
+<div class='question' id='part1_q4'>
+<p><strong>Câu 4:</strong><br><br>Kim loại nhóm IA (Na, K, Li…) thường có xu hướng:</p>
+<div class='option'><label><input type='radio' name='part1_q4' value='A'> <strong>A.</strong>  Nhận 1 electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q4' value='B'> <strong>B.</strong>  Mất 1 electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q4' value='C'> <strong>C.</strong>  Nhận 2 electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q4' value='D'> <strong>D.</strong>  Mất 3 electron</label></div>
+<div class='explanation' id='part1_q4_result' data-answer='B' data-solution='%20%3Cbr%3EKim%20lo%E1%BA%A1i%20nh%C3%B3m%20IA%20c%C3%B3%201%20electron%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%2C%20r%E1%BA%A5t%20d%E1%BB%85%20m%E1%BA%A5t%201e%20%E2%86%92%20cation%20M%E2%81%BA.'></div>
+</div>
+<div class='question' id='part1_q5'>
+<p><strong>Câu 5:</strong><br><br>Nguyên tố phi kim nhóm VIIA (Cl, Br, I…) thường có xu hướng:</p>
+<div class='option'><label><input type='radio' name='part1_q5' value='A'> <strong>A.</strong>  Mất 1 electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q5' value='B'> <strong>B.</strong>  Nhận 1 electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q5' value='C'> <strong>C.</strong>  Mất 7 electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q5' value='D'> <strong>D.</strong>  Nhận 7 electron</label></div>
+<div class='explanation' id='part1_q5_result' data-answer='B' data-solution='%20%3Cbr%3EPhi%20kim%20nh%C3%B3m%20VIIA%20c%C3%B3%207%20electron%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%20%E2%86%92%20d%E1%BB%85%20nh%E1%BA%ADn%201e%20%E2%86%92%20anion%20X%E2%81%BB.'></div>
+</div>
+<div class='question' id='part1_q6'>
+<p><strong>Câu 6:</strong><br><br>Trong phân tử NaCl, liên kết được hình thành là:</p>
+<div class='option'><label><input type='radio' name='part1_q6' value='A'> <strong>A.</strong>  Liên kết cộng hoá trị</label></div>
+<div class='option'><label><input type='radio' name='part1_q6' value='B'> <strong>B.</strong>  Liên kết kim loại</label></div>
+<div class='option'><label><input type='radio' name='part1_q6' value='C'> <strong>C.</strong>  Liên kết ion</label></div>
+<div class='option'><label><input type='radio' name='part1_q6' value='D'> <strong>D.</strong>  Liên kết hidro</label></div>
+<div class='explanation' id='part1_q6_result' data-answer='C' data-solution='%20%3Cbr%3ENa%20m%E1%BA%A5t%201e%20%E2%86%92%20Na%E2%81%BA%2C%20Cl%20nh%E1%BA%ADn%201e%20%E2%86%92%20Cl%E2%81%BB%20%E2%86%92%20l%E1%BB%B1c%20h%C3%BAt%20t%C4%A9nh%20%C4%91i%E1%BB%87n%20%E2%86%92%20li%C3%AAn%20k%E1%BA%BFt%20ion.'></div>
+</div>
+<div class='question' id='part1_q7'>
+<p><strong>Câu 7:</strong><br><br>Đặc điểm nào sau đây không đúng với tinh thể ion?</p>
+<div class='option'><label><input type='radio' name='part1_q7' value='A'> <strong>A.</strong>  Có nhiệt độ nóng chảy cao</label></div>
+<div class='option'><label><input type='radio' name='part1_q7' value='B'> <strong>B.</strong>  Dẫn điện khi nóng chảy</label></div>
+<div class='option'><label><input type='radio' name='part1_q7' value='C'> <strong>C.</strong>  Mềm và dễ uốn</label></div>
+<div class='option'><label><input type='radio' name='part1_q7' value='D'> <strong>D.</strong>  Cứng nhưng giòn</label></div>
+<div class='explanation' id='part1_q7_result' data-answer='C' data-solution='%20%3Cbr%3EM%E1%BB%81m%20%E2%80%93%20d%E1%BB%85%20u%E1%BB%91n%20l%C3%A0%20t%C3%ADnh%20ch%E1%BA%A5t%20c%E1%BB%A7a%20tinh%20th%E1%BB%83%20kim%20lo%E1%BA%A1i%2C%20kh%C3%B4ng%20ph%E1%BA%A3i%20tinh%20th%E1%BB%83%20ion.'></div>
+</div>
+<div class='question' id='part1_q8'>
+<p><strong>Câu 8:</strong><br><br>Tinh thể NaCl không dẫn điện ở trạng thái rắn vì:</p>
+<div class='option'><label><input type='radio' name='part1_q8' value='A'> <strong>A.</strong>  Hạt mang điện bị giữ chặt, không di chuyển được</label></div>
+<div class='option'><label><input type='radio' name='part1_q8' value='B'> <strong>B.</strong>  Không có ion</label></div>
+<div class='option'><label><input type='radio' name='part1_q8' value='C'> <strong>C.</strong>  Không có electron</label></div>
+<div class='option'><label><input type='radio' name='part1_q8' value='D'> <strong>D.</strong>  Muối không bị phân cực</label></div>
+<div class='explanation' id='part1_q8_result' data-answer='A' data-solution='%20%3Cbr%3ETrong%20tinh%20th%E1%BB%83%20r%E1%BA%AFn%2C%20ion%20b%E1%BB%8B%20c%E1%BB%91%20%C4%91%E1%BB%8Bnh%20trong%20m%E1%BA%A1ng%20tinh%20th%E1%BB%83%20%E2%86%92%20kh%C3%B4ng%20d%E1%BA%ABn%20%C4%91i%E1%BB%87n.'></div>
+</div>
+<div class='question' id='part1_q9'>
+<p><strong>Câu 9:</strong><br><br>Chất nào sau đây khi hoà tan trong nước dẫn điện?</p>
+<div class='option'><label><input type='radio' name='part1_q9' value='A'> <strong>A.</strong>  C₂H₅OH (rượu)</label></div>
+<div class='option'><label><input type='radio' name='part1_q9' value='B'> <strong>B.</strong>  Đường (C₁₂H₂₂O₁₁)</label></div>
+<div class='option'><label><input type='radio' name='part1_q9' value='C'> <strong>C.</strong>  NaCl</label></div>
+<div class='option'><label><input type='radio' name='part1_q9' value='D'> <strong>D.</strong>  S₈</label></div>
+<div class='explanation' id='part1_q9_result' data-answer='C' data-solution='%20%3Cbr%3ENaCl%20tan%20%E2%86%92%20Na%E2%81%BA%20v%C3%A0%20Cl%E2%81%BB%20di%20chuy%E1%BB%83n%20t%E1%BB%B1%20do%20%E2%86%92%20dung%20d%E1%BB%8Bch%20d%E1%BA%ABn%20%C4%91i%E1%BB%87n.'></div>
+</div>
+<div class='question' id='part1_q10'>
+<p><strong>Câu 10:</strong><br><br>Nguyên tử Mg (Z = 12) có cấu hình lớp ngoài cùng là 3s². Mg có khả năng tạo:</p>
+<div class='option'><label><input type='radio' name='part1_q10' value='A'> <strong>A.</strong>  Ion Mg⁻</label></div>
+<div class='option'><label><input type='radio' name='part1_q10' value='B'> <strong>B.</strong>  Ion Mg²⁺</label></div>
+<div class='option'><label><input type='radio' name='part1_q10' value='C'> <strong>C.</strong>  Ion Mg²⁻</label></div>
+<div class='option'><label><input type='radio' name='part1_q10' value='D'> <strong>D.</strong>  Không tạo ion</label></div>
+<div class='explanation' id='part1_q10_result' data-answer='B' data-solution='%20%3Cbr%3EMg%20c%C3%B3%202%20electron%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%20%E2%86%92%20kim%20lo%E1%BA%A1i%20ki%E1%BB%81m%20th%E1%BB%95%20%E2%86%92%20d%E1%BB%85%20m%E1%BA%A5t%202e%20%E2%86%92%20Mg%C2%B2%E2%81%BA.%3Cbr%3E'></div>
+</div>
+</div>
+<div class='section' id='part2' data-parttype='2'>
+<h2>Phần 2: Trắc nghiệm nhiều lựa chọn (có thể có nhiều đáp án đúng)</h2>
+<div class='question' id='part2_q1'>
+<p><strong>Câu 1:</strong><br><br>Chọn phát biểu đúng về ion.</p>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='A'> <strong>A.</strong>  Ion dương hình thành khi nguyên tử mất electron.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='B'> <strong>B.</strong>  Ion âm hình thành khi nguyên tử nhận electron.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='C'> <strong>C.</strong>  Ion luôn là nguyên tử đơn, không thể là nhóm nguyên tử.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='D'> <strong>D.</strong>  Ion có thể mang điện dương hoặc âm.</label></div>
+<div class='explanation' id='part2_q1_result' data-answer='A,B,D' data-solution='%20%3Cbr%3EA%20%C4%91%C3%BAng%3A%20m%E1%BA%A5t%20e%20%E2%86%92%20thi%E1%BA%BFu%20e%20%E2%86%92%20cation.%3Cbr%3EB%20%C4%91%C3%BAng%3A%20nh%E1%BA%ADn%20e%20%E2%86%92%20th%E1%BB%ABa%20e%20%E2%86%92%20anion.%3Cbr%3EC%20sai%3A%20c%C3%B3%20ion%20%C4%91a%20nguy%C3%AAn%20t%E1%BB%AD%20%28SO%E2%82%84%C2%B2%E2%81%BB%2C%20NH%E2%82%84%E2%81%BA%E2%80%A6%29.%3Cbr%3ED%20%C4%91%C3%BAng%3A%20ion%20c%C3%B3%20th%E1%BB%83%20l%C3%A0%20%2B%20ho%E1%BA%B7c%20%E2%80%93.'></div>
+</div>
+<div class='question' id='part2_q2'>
+<p><strong>Câu 2:</strong><br><br>Trong quá trình hình thành liên kết ion giữa kim loại và phi kim:</p>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='A'> <strong>A.</strong>  Kim loại có khuynh hướng mất electron.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='B'> <strong>B.</strong>  Phi kim có khuynh hướng nhận electron.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='C'> <strong>C.</strong>  Các nguyên tử dùng chung cặp electron để tạo liên kết.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='D'> <strong>D.</strong>  Các ion trái dấu hút nhau tạo thành liên kết.</label></div>
+<div class='explanation' id='part2_q2_result' data-answer='A,B,D' data-solution='%20%3Cbr%3EA%2C%20B%20%C4%91%C3%BAng%3A%20Li%C3%AAn%20k%E1%BA%BFt%20ion%20h%C3%ACnh%20th%C3%A0nh%20qua%20trao%20%C4%91%E1%BB%95i%20electron.%3Cbr%3EC%20sai%3A%20%C4%90%C3%A2y%20l%C3%A0%20li%C3%AAn%20k%E1%BA%BFt%20c%E1%BB%99ng%20ho%C3%A1%20tr%E1%BB%8B.%3Cbr%3ED%20%C4%91%C3%BAng%3A%20Sau%20khi%20t%E1%BA%A1o%20ion%2C%20l%E1%BB%B1c%20h%C3%BAt%20t%C4%A9nh%20%C4%91i%E1%BB%87n%20gi%E1%BB%AFa%20ion%20%2B%20v%C3%A0%20%E2%80%93%20t%E1%BA%A1o%20li%C3%AAn%20k%E1%BA%BFt%20ion.'></div>
+</div>
+<div class='question' id='part2_q3'>
+<p><strong>Câu 3:</strong><br><br>Tính chất nào sau đây là tính chất chung của tinh thể ion?</p>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='A'> <strong>A.</strong>  Cứng nhưng giòn.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='B'> <strong>B.</strong>  Dẫn điện tốt ở trạng thái rắn.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='C'> <strong>C.</strong>  Có nhiệt độ nóng chảy cao.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='D'> <strong>D.</strong>  Dẫn điện khi nóng chảy hoặc hòa tan trong nước.</label></div>
+<div class='explanation' id='part2_q3_result' data-answer='A,C,D' data-solution='%20%3Cbr%3EA%3A%20%C4%91%C3%BAng%20v%C3%AC%20khi%20c%C3%A1c%20l%E1%BB%9Bp%20ion%20tr%C6%B0%E1%BB%A3t%2C%20ion%20c%C3%B9ng%20d%E1%BA%A5u%20g%E1%BA%B7p%20nhau%20v%C3%A0%20%C4%91%E1%BA%A9y%20%E2%86%92%20tinh%20th%E1%BB%83%20v%E1%BB%A1.%3Cbr%3EB%3A%20sai%2C%20r%E1%BA%AFn%20kh%C3%B4ng%20d%E1%BA%ABn%20%C4%91i%E1%BB%87n%20do%20ion%20b%E1%BB%8B%20gi%E1%BB%AF%20ch%E1%BA%B7t.%3Cbr%3EC%3A%20%C4%91%C3%BAng%20v%C3%AC%20l%E1%BB%B1c%20h%C3%BAt%20ion%20%E2%80%93%20ion%20r%E1%BA%A5t%20m%E1%BA%A1nh.%3Cbr%3ED%3A%20%C4%91%C3%BAng%2C%20khi%20tan%2Fch%E1%BA%A3y%20ion%20chuy%E1%BB%83n%20%C4%91%E1%BB%99ng%20%C4%91%C6%B0%E1%BB%A3c%20%E2%86%92%20d%E1%BA%ABn%20%C4%91i%E1%BB%87n.'></div>
+</div>
+<div class='question' id='part2_q4'>
+<p><strong>Câu 4:</strong><br><br>Chất nào dưới đây có liên kết ion?</p>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='A'> <strong>A.</strong>  NaCl</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='B'> <strong>B.</strong>  MgO</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='C'> <strong>C.</strong>  H₂O</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='D'> <strong>D.</strong>  CaF₂</label></div>
+<div class='explanation' id='part2_q4_result' data-answer='A,B,D' data-solution='%20%3Cbr%3ELi%C3%AAn%20k%E1%BA%BFt%20gi%E1%BB%AFa%20kim%20lo%E1%BA%A1i%20m%E1%BA%A1nh%20v%C3%A0%20phi%20kim%20m%E1%BA%A1nh%20l%C3%A0%20li%C3%AAn%20k%E1%BA%BFt%20ion%20do%20%C4%91%C3%B3%20A%2C%20B%20v%C3%A0%20D%20%C4%91%C3%BAng.%3Cbr%3ELi%C3%AAn%20k%E1%BA%BFt%20gi%E1%BB%AFa%20phi%20kim%20v%E1%BB%9Bi%20phi%20kim%20l%C3%A0%20li%C3%AAn%20k%E1%BA%BFt%20c%E1%BB%99ng%20h%C3%B3a%20tr%E1%BB%8B%2C%20do%20%C4%91%C3%B3%20li%C3%AAn%20k%E1%BA%BFt%20gi%E1%BB%AFa%20H%20v%C3%A0%20O%20trong%20ph%C3%A2n%20t%E1%BB%AD%20H%E2%82%82O%20l%C3%A0%20li%C3%AAn%20k%E1%BA%BFt%20c%E1%BB%99ng%20h%C3%B3a%20tr%E1%BB%8B.'></div>
+</div>
+<div class='question' id='part2_q5'>
+<p><strong>Câu 5:</strong><br><br>Về sự dẫn điện của NaCl, phát biểu nào đúng?</p>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='A'> <strong>A.</strong>  NaCl rắn không dẫn điện vì các ion không thể dịch chuyển.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='B'> <strong>B.</strong>  NaCl nóng chảy dẫn điện vì có các ion di chuyển tự do.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='C'> <strong>C.</strong>  NaCl tan trong nước dẫn điện vì có electron tự do.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='D'> <strong>D.</strong>  Dung dịch NaCl dẫn điện nhờ sự dịch chuyển của Na⁺ và Cl⁻.</label></div>
+<div class='explanation' id='part2_q5_result' data-answer='A,B,D' data-solution='%20%3Cbr%3EA%20%C4%91%C3%BAng%3A%20ion%20b%E1%BB%8B%20gi%E1%BB%AF%20ch%E1%BA%B7t%20trong%20m%E1%BA%A1ng.%3Cbr%3EB%20%C4%91%C3%BAng%3A%20n%C3%B3ng%20ch%E1%BA%A3y%20%E2%86%92%20ion%20t%E1%BB%B1%20do.%3Cbr%3EC%20sai%3A%20kh%C3%B4ng%20ph%E1%BA%A3i%20electron%2C%20m%C3%A0%20l%C3%A0%20ion.%3Cbr%3ED%20%C4%91%C3%BAng%3A%20dung%20d%E1%BB%8Bch%20d%E1%BA%ABn%20%C4%91i%E1%BB%87n%20nh%E1%BB%9D%20ion%20di%20chuy%E1%BB%83n.%3Cbr%3E'></div>
+</div>
+</div>
+<div class='section' id='part3' data-parttype='4'>
+<h2>Phần 3: Trắc nghiệm điền khuyết</h2>
+<div class='question' id='part3_q1'>
+<p><strong>Câu 1:</strong><br><br>Ion dương được hình thành khi nguyên tử <span class='blank-container'><input type='text' id='part3_q1_blank1' data-answer=' mất|| nhường|| cho' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> electron, còn ion âm được hình thành khi nguyên tử <span class='blank-container'><input type='text' id='part3_q1_blank2' data-answer=' nhận|| thu' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> electron.</p>
+<div class='explanation' id='part3_q1_result' data-solution=''></div>
+</div>
+<div class='question' id='part3_q2'>
+<p><strong>Câu 2:</strong><br><br>Trong liên kết ion giữa natri và clo, nguyên tử Na <span class='blank-container'><input type='text' id='part3_q2_blank1' data-answer=' mất|| nhường|| cho' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> 1 electron tạo ion Na⁺ và nguyên tử Cl <span class='blank-container'><input type='text' id='part3_q2_blank2' data-answer=' nhận|| thu' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> 1 electron tạo ion Cl⁻.</p>
+<div class='explanation' id='part3_q2_result' data-solution=''></div>
+</div>
+<div class='question' id='part3_q3'>
+<p><strong>Câu 3:</strong><br><br>Tinh thể ion có đặc điểm: nhiệt độ nóng chảy <span class='blank-container'><input type='text' id='part3_q3_blank1' data-answer=' cao' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span>, ở trạng thái rắn <span class='blank-container'><input type='text' id='part3_q3_blank2' data-answer=' không' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> dẫn điện nhưng khi nóng chảy hoặc hòa tan trong nước thì <span class='blank-container'><input type='text' id='part3_q3_blank3' data-answer=' có' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> dẫn điện.</p>
+<div class='explanation' id='part3_q3_result' data-solution=''></div>
+</div>
+<div class='question' id='part3_q4'>
+<p><strong>Câu 4:</strong><br><br>Trong tinh thể NaCl, mỗi ion Na⁺ bị bao quanh bởi <span class='blank-container'><input type='text' id='part3_q4_blank1' data-answer=' 6|| 06|| sáu' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> ion Cl⁻ và mỗi ion Cl⁻ bị bao quanh bởi <span class='blank-container'><input type='text' id='part3_q4_blank2' data-answer=' 6|| 06|| sáu' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> ion Na⁺, tạo thành mạng tinh thể có dạng <span class='blank-container'><input type='text' id='part3_q4_blank3' data-answer=' lập phương|| lập phương tâm diện' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span>.</p>
+<div class='explanation' id='part3_q4_result' data-solution=''></div>
+</div>
+</div>
+<div class='section' id='part4' data-parttype='5'>
+<h2>Phần 4: Trắc nghiệm kéo - thả</h2>
+<div class='question' id='part4_q1'>
+<p class='question-content'><strong>Câu 1:</strong><br><br>Ghép ion với loại hạt mang điện tương ứng</p>
+<div class='drag-drop-container'>
+<div class='drag-column'>
+<div class='draggable-item' data-label='2' draggable='true' ondragstart='drag(event)' id='part4_q1_drag_0'>Mang 1 điện tích âm</div>
+<div class='draggable-item' data-label='1' draggable='true' ondragstart='drag(event)' id='part4_q1_drag_1'>Mang 1 điện tích dương</div>
+<div class='draggable-item' data-label='4' draggable='true' ondragstart='drag(event)' id='part4_q1_drag_2'>Mang 2 điện tích âm</div>
+<div class='draggable-item' data-label='3' draggable='true' ondragstart='drag(event)' id='part4_q1_drag_3'>Mang 2 điện tích dương</div>
+</div>
+<div class='drop-column'>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='A' id='part4_q1_drop_0' data-expected='1' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Na⁺ </div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='B' id='part4_q1_drop_1' data-expected='2' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Cl⁻ </div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='C' id='part4_q1_drop_2' data-expected='3' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Ca²⁺ </div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='D' id='part4_q1_drop_3' data-expected='4' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>O²⁻</div>
+</div>
+</div>
+</div>
+</div>
+<div class='explanation' id='part4_q1_result' data-answer-pairs='Mang 1 điện tích dương -- Na⁺  || Mang 1 điện tích âm -- Cl⁻  || Mang 2 điện tích dương -- Ca²⁺  || Mang 2 điện tích âm -- O²⁻' data-solution=''></div>
+</div>
+<div class='question' id='part4_q2'>
+<p class='question-content'><strong>Câu 2:</strong><br><br>Ghép mô tả với tính chất của tinh thể ion</p>
+<div class='drag-drop-container'>
+<div class='drag-column'>
+<div class='draggable-item' data-label='4' draggable='true' ondragstart='drag(event)' id='part4_q2_drag_0'>Lực hút ion – ion mạnh</div>
+<div class='draggable-item' data-label='2' draggable='true' ondragstart='drag(event)' id='part4_q2_drag_1'>Không dẫn điện</div>
+<div class='draggable-item' data-label='3' draggable='true' ondragstart='drag(event)' id='part4_q2_drag_2'>Mg</div>
+<div class='draggable-item' data-label='1' draggable='true' ondragstart='drag(event)' id='part4_q2_drag_3'>Dẫn điện</div>
+</div>
+<div class='drop-column'>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='A' id='part4_q2_drop_0' data-expected='2' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Tinh thể rắn</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='B' id='part4_q2_drop_1' data-expected='3' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Nhường 2e </div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='C' id='part4_q2_drop_2' data-expected='1' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Dung dịch muối trong nước</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='D' id='part4_q2_drop_3' data-expected='4' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Nhiệt độ nóng chảy cao</div>
+</div>
+</div>
+</div>
+</div>
+<div class='explanation' id='part4_q2_result' data-answer-pairs='Dẫn điện -- Dung dịch muối trong nước || Không dẫn điện -- Tinh thể rắn || Mg -- Nhường 2e  || Lực hút ion – ion mạnh -- Nhiệt độ nóng chảy cao' data-solution=''></div>
+</div>
+<div class='question' id='part4_q3'>
+<p class='question-content'><strong>Câu 3:</strong><br><br>Ghép nguyên tố với xu hướng hình thành ion (không dùng độ âm điện)</p>
+<div class='drag-drop-container'>
+<div class='drag-column'>
+<div class='draggable-item' data-label='4' draggable='true' ondragstart='drag(event)' id='part4_q3_drag_0'>Mất 1 electron → X⁺</div>
+<div class='draggable-item' data-label='2' draggable='true' ondragstart='drag(event)' id='part4_q3_drag_1'>Mất 2 electron → X²⁺</div>
+<div class='draggable-item' data-label='3' draggable='true' ondragstart='drag(event)' id='part4_q3_drag_2'>Mất 3 electron → X³⁺</div>
+<div class='draggable-item' data-label='1' draggable='true' ondragstart='drag(event)' id='part4_q3_drag_3'>Nhận 1 electron → X⁻</div>
+</div>
+<div class='drop-column'>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='A' id='part4_q3_drop_0' data-expected='2' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Mg</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='B' id='part4_q3_drop_1' data-expected='3' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Al</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='C' id='part4_q3_drop_2' data-expected='1' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Cl</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='D' id='part4_q3_drop_3' data-expected='4' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Na</div>
+</div>
+</div>
+</div>
+</div>
+<div class='explanation' id='part4_q3_result' data-answer-pairs='Nhận 1 electron → X⁻ -- Cl || Mất 2 electron → X²⁺ -- Mg || Mất 3 electron → X³⁺ -- Al || Mất 1 electron → X⁺ -- Na' data-solution=''></div>
+</div>
+</div>
+
+    <div style='text-align:center; margin-top:30px;'>
+      <button id='submitBtn' onclick='gradeQuiz();'>Nộp bài</button>
+    </div>
+    <script>
+      function gradeQuiz() {
+         let score = 0, total = 0;
+         document.querySelectorAll('.section').forEach(function(section) {
+           let partType = section.getAttribute('data-parttype');
+           section.querySelectorAll('.question').forEach(function(q) {
+             total++;
+             let qid = q.id;
+             let feedback = "";
+             if (partType === "1") {
+               let selected = q.querySelector('input[name="' + qid + '"]:checked');
+               let correct = q.querySelector('.explanation').getAttribute('data-answer');
+               if (!selected) {
+                 feedback = '<span style="color:red;"><strong>Bạn chưa trả lời. Đáp án đúng: ' + correct + '</strong></span>';
+               } else if (selected.value === correct) {
+                 score++;
+                 feedback = '<span style="color:green;"><strong>Đúng (' + correct + ')</strong></span>';
+               } else {
+                 feedback = '<span style="color:red;"><strong>Sai. Đáp án đúng: ' + correct + '</strong></span>';
+               }
+             } else if (partType === "2") {
+               let selectedList = q.querySelectorAll('input[name="' + qid + '"]:checked');
+               if (selectedList.length === 0) {
+                 let correct = q.querySelector('.explanation').getAttribute('data-answer');
+                 feedback = '<span style="color:red;"><strong>Bạn chưa trả lời. Đáp án đúng: ' + correct + '</strong></span>';
+               } else {
+                 let userAnswers = [];
+                 selectedList.forEach(function(el) { userAnswers.push(el.value); });
+                 let correct = q.querySelector('.explanation').getAttribute('data-answer').split(',');
+                 userAnswers.sort(); correct.sort();
+                 if (userAnswers.join() === correct.join()) {
+                   score++;
+                   feedback = '<span style="color:green;"><strong>Đúng (' + correct.join(',') + ')</strong></span>';
+                 } else {
+                   feedback = '<span style="color:red;"><strong>Sai. Đáp án đúng: ' + correct.join(',') + '</strong></span>';
+                 }
+               }
+             } else if (partType === "3") {
+               let inputElem = document.getElementById(qid + '_input');
+               let userInput = inputElem.value.trim();
+               let correctData = q.querySelector('.explanation').getAttribute('data-answer');
+               let accepted = correctData.split('||').map(s => s.trim());
+               if (!userInput) {
+                 feedback = '<span style="color:red;"><strong>Bạn chưa trả lời. Đáp án đúng: ' + accepted.join(' hoặc ') + '</strong></span>';
+               } else {
+                 if (accepted.includes(userInput)) {
+                   score++;
+                   feedback = '<span style="color:green;"><strong>Đúng</strong></span>';
+                   inputElem.style.color = 'green';
+                 } else {
+                   feedback = '<span style="color:red;"><strong>Sai. Đáp án đúng: ' + accepted.join(' hoặc ') + '</strong></span>';
+                   inputElem.style.color = 'red';
+                 }
+                 inputElem.style.fontWeight = 'bold';
+                 inputElem.disabled = true;
+               }
+             } else if (partType === "4") {
+               let inputs = q.querySelectorAll('input.auto-expand');
+               let blankResults = [];
+               inputs.forEach(function(inp, index) {
+                 let accepted = inp.getAttribute('data-answer').split('||').map(s => s.trim());
+                 let userAnswer = inp.value.trim();
+                 if (userAnswer !== "") {
+                   if (accepted.includes(userAnswer)) {
+                     blankResults.push({blank: index+1, correct: true, answer: userAnswer, accepted: accepted});
+                   } else {
+                     blankResults.push({blank: index+1, correct: false, answer: userAnswer, accepted: accepted});
+                   }
+                 } else {
+                   blankResults.push({blank: index+1, answered: false, accepted: accepted});
+                 }
+               });
+               inputs.forEach(function(inp, index) {
+                 let res = blankResults[index];
+                 if (res.answered === false) { }
+                 else {
+                   let span = document.createElement('span');
+                   span.style.fontWeight = 'bold';
+                   if (res.correct) {
+                     span.style.color = 'green';
+                     span.textContent = res.answer;
+                   } else {
+                     span.style.color = 'red';
+                     span.textContent = res.answer;
+                   }
+                   inp.parentNode.replaceChild(span, inp);
+                 }
+               });
+               let wrongBlanks = [];
+               let unansweredBlanks = [];
+               blankResults.forEach(function(r) {
+                 if (r.answered === false) { unansweredBlanks.push(r.blank); }
+                 else if (!r.correct) { wrongBlanks.push(r.blank); }
+               });
+               if (wrongBlanks.length === 0 && unansweredBlanks.length === 0) {
+                 feedback = '<span style="color:green; font-weight:bold;">Đúng</span>';
+                 score++;
+               } else {
+                 let answerList = "";
+                 blankResults.forEach(function(r) {
+                   answerList += r.blank + ') ' + r.accepted.join(', hoặc ') + '<br>';
+                 });
+                 feedback = '<span style="color:red; font-weight:bold;">Sai.';
+                 if (wrongBlanks.length > 0) {
+                   feedback += ' Bạn trả lời sai vị trí ' + wrongBlanks.join(', ') + '.';
+                 }
+                 if (unansweredBlanks.length > 0) {
+                   feedback += ' Bạn chưa trả lời vị trí ' + unansweredBlanks.join(', ') + '.';
+                 }
+                 feedback += '<br>Đáp án đúng là:<br>' + answerList + '</span>';
+               }
+             } else if (partType === "5") {
+               let correctForQuestion = true;
+               q.querySelectorAll('.dropzone').forEach(function(dropZone) {
+                 let expected = dropZone.getAttribute('data-expected').trim();
+                 let userItems = Array.from(dropZone.querySelectorAll('.draggable-item')).map(e => e.getAttribute('data-label')).sort();
+                 let expectedItems = expected ? expected.split(',').map(s => s.trim()).sort() : [];
+                 if (JSON.stringify(userItems) !== JSON.stringify(expectedItems)) {
+                   correctForQuestion = false;
+                 }
+               });
+               if (correctForQuestion) {
+                 feedback = '<span style="color:green; font-weight:bold;">Đúng</span>';
+                 score++;
+               } else {
+                 let answerPairs = q.querySelector('.explanation').getAttribute('data-answer-pairs');
+                 feedback = '<span style="color:red; font-weight:bold;">Sai. Đáp án đúng là:<br>' + answerPairs.replace(/ \|\| /g, "<br>") + '</span>';
+               }
+             }
+             let expl = q.querySelector('.explanation');
+             expl.innerHTML = feedback;
+             let encodedSolution = expl.getAttribute('data-solution');
+             let solution = encodedSolution ? decodeURIComponent(encodedSolution) : "";
+             let cleanedSolution = solution.replace(/<br\s*\/?>/gi, '').trim();
+             if (cleanedSolution !== "") {
+                 expl.innerHTML += '<div style="margin-top:10px;"><strong>Lời giải:</strong></div><div>' + solution + '</div>';
+             }
+             expl.style.display = "block";
+           });
+         });
+         document.getElementById('scoreDisplay').innerHTML = 'Tổng số điểm: ' + score + ' / ' + total;
+         document.querySelectorAll('input, select').forEach(function(inp) { inp.disabled = true; });
+         let sb = document.getElementById('submitBtn'); if(sb) sb.disabled = true;
+         MathJax.typesetPromise();
+      }
+    </script>
+  </div>
+</body>
+</html>
